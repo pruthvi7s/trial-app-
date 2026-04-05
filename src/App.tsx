@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'motion/react';
-import { signInWithGoogle } from './components/Auth';
+import { signInWithGoogle, signInWithEmail, signUpWithEmail } from './components/Auth';
 import { useState, useEffect } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from './lib/firebase';
@@ -16,6 +16,9 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string>('student');
   const [view, setView] = useState<'assessment' | 'admin'>('assessment');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -52,8 +55,21 @@ export default function App() {
     }
   };
 
+  const handleEmailAuth = async () => {
+    try {
+      if (isSignUp) {
+        await signUpWithEmail(email, password);
+      } else {
+        await signInWithEmail(email, password);
+      }
+    } catch (error: any) {
+      console.error('Email Auth failed', error);
+      alert(error.message);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-6">
+    <div className="min-h-screen bg-black text-white p-4 sm:p-6 flex flex-col">
       <header className="flex flex-wrap justify-between items-center mb-10 border-b border-gold pb-4 gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gold">Infinix Academy</h1>
         {user && (
@@ -68,20 +84,34 @@ export default function App() {
       </header>
 
       {!user ? (
-        <div className="flex flex-col items-center justify-center h-[70vh]">
+        <div className="flex-grow flex flex-col items-center justify-center">
           <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-5xl font-bold text-gold mb-6">Unlock Your Future</motion.h2>
           <p className="text-xl text-gray-400 mb-10 text-center max-w-lg">Infinix Academy uses AI to provide personalized career guidance, learning roadmaps, and professional assessments.</p>
+          
+          <div className="space-y-4 w-full max-w-sm">
+            <input type="email" placeholder="Email" className="w-full p-3 bg-black border border-gold rounded" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input type="password" placeholder="Password" className="w-full p-3 bg-black border border-gold rounded" value={password} onChange={(e) => setPassword(e.target.value)} />
+            <button onClick={handleEmailAuth} className="w-full bg-gold text-black px-8 py-3 rounded font-semibold text-lg">
+              {isSignUp ? 'Sign Up' : 'Sign In'} with Email
+            </button>
+            <button onClick={() => setIsSignUp(!isSignUp)} className="text-sm text-gray-400 underline">
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
+          </div>
+
+          <div className="my-6 text-gray-500">OR</div>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSignIn}
-            className="bg-gold text-black px-8 py-3 rounded-full font-semibold text-lg"
+            className="bg-white text-black px-8 py-3 rounded font-semibold text-lg flex items-center gap-2"
           >
             Sign in with Google
           </motion.button>
         </div>
       ) : (
-        <main>
+        <main className="flex-grow">
           {view === 'assessment' ? <AssessmentForm /> : <AdminDashboard />}
         </main>
       )}
