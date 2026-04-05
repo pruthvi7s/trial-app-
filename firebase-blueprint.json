@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and role information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User email" },
+        "role": { "type": "string", "enum": ["student", "admin"], "description": "User role" },
+        "name": { "type": "string", "description": "User name" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Assessment": {
+      "title": "Assessment",
+      "description": "Student assessment submission",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string", "description": "Reference to User" },
+        "riasecScores": { "type": "object", "description": "RIASEC test scores" },
+        "mbtiResult": { "type": "string", "description": "MBTI result" },
+        "skills": { "type": "array", "description": "List of skills" },
+        "careerPaths": { "type": "array", "description": "Suggested career paths" },
+        "status": { "type": "string", "enum": ["pending", "viewed"], "description": "Status of the assessment" }
+      },
+      "required": ["studentId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User profiles"
+    },
+    "/assessments/{assessmentId}": {
+      "schema": { "$ref": "Assessment" },
+      "description": "Student assessment submissions"
+    }
+  }
+}
