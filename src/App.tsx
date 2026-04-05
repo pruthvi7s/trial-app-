@@ -42,17 +42,22 @@ export default function App() {
   const handleSignIn = async () => {
     try {
       await signInWithGoogle();
-    } catch (error) {
-      console.error('Sign in failed', error);
+    } catch (error: any) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.log('Sign-in window closed by user.');
+      } else {
+        console.error('Sign in failed', error);
+        alert('Sign in failed. Please try again.');
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <header className="flex justify-between items-center mb-10 border-b border-gold pb-4">
-        <h1 className="text-3xl font-bold text-gold">Infinix Academy</h1>
+    <div className="min-h-screen bg-black text-white p-4 sm:p-6">
+      <header className="flex flex-wrap justify-between items-center mb-10 border-b border-gold pb-4 gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gold">Infinix Academy</h1>
         {user && (
-          <nav className="space-x-4">
+          <nav className="flex flex-wrap space-x-2 sm:space-x-4">
             <button onClick={() => setView('assessment')} className="text-white hover:text-gold">Assessment</button>
             {role === 'admin' && (
               <button onClick={() => setView('admin')} className="text-white hover:text-gold">Admin</button>
