@@ -18,18 +18,27 @@ export default function AssessmentForm() {
   });
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [roadmap, setRoadmap] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (auth.currentUser) {
-      const paths = await suggestCareerPaths(formData);
-      setSuggestions(paths);
-      await setDoc(doc(db, 'assessments', auth.currentUser.uid), {
-        ...formData,
-        studentId: auth.currentUser.uid,
-        careerPaths: paths,
-        status: 'pending'
-      });
-      setStep(5);
+      setLoading(true);
+      try {
+        const paths = await suggestCareerPaths(formData);
+        setSuggestions(paths);
+        await setDoc(doc(db, 'assessments', auth.currentUser.uid), {
+          ...formData,
+          studentId: auth.currentUser.uid,
+          careerPaths: paths,
+          status: 'pending'
+        });
+        setStep(5);
+      } catch (error) {
+        console.error('Submission failed', error);
+        alert('Failed to submit assessment. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -107,7 +116,13 @@ export default function AssessmentForm() {
             value={formData.mbti}
             onChange={(e) => setFormData({...formData, mbti: e.target.value.toUpperCase()})}
           />
-          <button onClick={handleSubmit} className="bg-gold text-black px-4 py-2 rounded">Submit Assessment</button>
+          <button 
+            onClick={handleSubmit} 
+            disabled={loading}
+            className="bg-gold text-black px-4 py-2 rounded disabled:opacity-50"
+          >
+            {loading ? 'Analyzing your profile...' : 'Submit Assessment'}
+          </button>
         </div>
       )}
       {step === 5 && (
