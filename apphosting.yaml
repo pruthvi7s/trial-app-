@@ -1,6 +1,7 @@
 kind: "AppStack"
 apiVersion: "v1"
 runConfig:
+  runCommand: "npm run preview"
   environmentVariables:
     - variable: PORT
       value: "8080"
