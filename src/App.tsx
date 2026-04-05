@@ -85,6 +85,9 @@ export default function App() {
           {view === 'assessment' ? <AssessmentForm /> : <AdminDashboard />}
         </main>
       )}
+      <footer className="mt-auto py-6 text-center text-gray-500 text-sm border-t border-gray-800">
+        Created by Sneha and Sadguru
+      </footer>
     </div>
   );
 }
