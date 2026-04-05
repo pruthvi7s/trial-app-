@@ -1,0 +1,6 @@
+kind: "AppStack"
+apiVersion: "v1"
+runConfig:
+  environmentVariables:
+    - variable: PORT
+      value: "8080"

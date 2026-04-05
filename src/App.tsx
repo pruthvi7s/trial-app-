@@ -8,7 +8,7 @@ import { signInWithGoogle } from './components/Auth';
 import { useState, useEffect } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from './lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import AssessmentForm from './components/AssessmentForm';
 import AdminDashboard from './components/AdminDashboard';
 
@@ -21,8 +21,17 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-        if (userDoc.exists()) {
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+          await setDoc(userRef, {
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+            role: 'student',
+            createdAt: new Date()
+          });
+          setRole('student');
+        } else {
           setRole(userDoc.data().role);
         }
       }
